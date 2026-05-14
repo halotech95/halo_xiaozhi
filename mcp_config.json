@@ -1,19 +1,49 @@
 {
   "mcpServers": {
+
     "local-stdio-calculator": {
       "type": "stdio",
       "command": "python",
       "args": ["-m", "calculator"]
     },
+
+    "weather-server": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m","weather"]
+    },
+    "news-server": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m","vn_express"]
+    },
+    "gia_vang-server": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m","gia_vang"]
+    },
+    "gemini_mcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m","gemini_mcp"]
+    },
+
+
+
+
+
+
     "remote-sse-server": {
       "type": "sse",
       "url": "https://api.example.com/sse",
       "disabled": true
     },
+
     "remote-http-server": {
       "type": "http",
       "url": "https://api.example.com/mcp",
       "disabled": true
     }
+
   }
 }
