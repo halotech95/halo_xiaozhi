@@ -31,6 +31,8 @@
 #include <arpa/inet.h>
 #include <font_awesome.h>
 #include "features/weather/weather_ui.h"
+#include "features/dashboard/dashboard_ui.h"
+#include "features/control/control_ui.h"
 #include "ml307_board.h"
 #define TAG "Application"
 
@@ -422,7 +424,9 @@ void Application::Start() {
     // Start the independent weather idle display task after network is ready
     StartWeatherIdleTask();
 #endif
-
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    StartDashboardTask();
+#endif
     // Register network tool — pass overlay callback so the QR canvas can
     // hide/restore the host display's normal UI while it is visible.
     // SetMediaOverlayActive is virtual: works for both LCD and OLED.
@@ -1770,3 +1774,37 @@ void Application::UpdateIdleDisplay() {
 }
 #endif
 // --- [DienBien Mod]- END WEATHER SCREEN UPDATE----
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+void Application::StartDashboardTask() {
+    xTaskCreate([](void* arg) {
+        Application* app = static_cast<Application*>(arg);
+
+        while (true) {
+            vTaskDelay(pdMS_TO_TICKS(1000));
+
+            if (app->GetDeviceState() == kDeviceStateIdle &&
+                !app->IsMediaPlaying()) {
+                app->UpdateDashboardDisplay();
+            } else {
+                auto display = Board::GetInstance().GetDisplay();
+                display->HideIdleCard();
+            }
+        }
+
+        vTaskDelete(nullptr);
+    }, "dashboard_task", 4096, this, 2, &dashboard_task_handle_);
+    ESP_LOGI(TAG, "Dashboard task started");
+}
+void Application::UpdateDashboardDisplay() {
+    DashboardInfo info{};
+
+    // TODO: Thay bằng dữ liệu thực tế
+
+    info.temperature = 28.5f;
+    info.humidity = 72.0f;
+    info.relay = true;
+
+    auto display = Board::GetInstance().GetDisplay();
+    display->ShowIdleCard(info);
+}
+#endif

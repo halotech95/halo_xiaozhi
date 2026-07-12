@@ -8,7 +8,8 @@ Contributors: Xiaozhi AI-IoT Vietnam Team
 #include "lvgl_theme.h"
 #include "assets/lang_config.h"
 #include "features/weather/weather_model.h"
-
+#include "features/dashboard/dashboard_model.h"
+#include "features/control/control_model.h"
 #include <vector>
 #include <algorithm>
 #include <font_awesome.h>
@@ -130,6 +131,7 @@ void LcdDisplay::ShowIdleCard(const IdleCardInfo& info) {
         DisplayLockGuard lock(this);
         if (container_) lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
         weather_ui_->ShowIdleCard(info);
+        ESP_LOGI(TAG, "ShowIdleCard: weather idle card displayed");
     }
 }
 #endif
@@ -143,6 +145,7 @@ void LcdDisplay::HideIdleCard() {
             weather_ui_->HideIdleCard();
         }
     }
+    ESP_LOGI (TAG, "HideIdleCard: weather idle card hidden");
 }
 #endif
 // --- [DienBien Mod]- END KHỞI TẠO MÀN HÌNH THỜI TIẾT----
@@ -154,6 +157,57 @@ void LcdDisplay::HideIdleCard() {
  * the emotion/chat widgets must be hidden so they don't overlap.
  * When deactivated, the original UI elements are restored.
  * ------------------------------------------------------------------ */
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+void LcdDisplay :: ShowIdleCard (const DashboardInfo& info) {
+    if (dashboard_ui_) {
+        DisplayLockGuard lock(this);
+        if (container_) lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        dashboard_ui_->ShowIdleCard(info);
+    }
+    else {
+        ESP_LOGW(TAG, "Dashboard UI is not initialized");
+    }
+}
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+void LcdDisplay::HideIdleCard() {
+    if (dashboard_ui_) {
+        DisplayLockGuard lock(this);
+        if (container_ && lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN)) {
+            lv_obj_remove_flag(container_, LV_OBJ_FLAG_HIDDEN);
+            dashboard_ui_->HideIdleCard();
+        }
+    }
+    else {
+        ESP_LOGW(TAG, "Dashboard UI is not initialized");
+    }
+}
+    //CONTROL UI
+    void LcdDisplay::ShowControl()
+{
+    if (control_ui_) {
+        DisplayLockGuard lock(this);
+
+        if (container_)
+            lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+
+        control_ui_->Show();
+    }
+}
+
+void LcdDisplay::HideControl()
+{
+    if (control_ui_) {
+        DisplayLockGuard lock(this);
+
+        control_ui_->Hide();
+
+        if (container_)
+            lv_obj_clear_flag(container_, LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+#endif
 void LcdDisplay::SetMediaOverlayActive(bool active) {
     DisplayLockGuard lock(this);
 
@@ -165,6 +219,24 @@ void LcdDisplay::SetMediaOverlayActive(bool active) {
 #ifdef CONFIG_WEATHER_IDLE_DISPLAY_ENABLE
         if (weather_ui_) weather_ui_->HideIdleCard();
         if (container_) lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        ESP_LOGI (TAG, "Media overlay active: weather UI hidden");
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+        if (dashboard_ui_) dashboard_ui_->HideIdleCard();
+        else {
+            ESP_LOGW(TAG, "Dashboard UI is not initialized");
+        }
+        if (control_ui_) {
+            control_ui_->Hide();
+        } else {
+            ESP_LOGW(TAG, "Control UI is not initialized");
+        }
+        if (container_) lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
+        else {
+            ESP_LOGW(TAG, "Container is not initialized");
+        }
+        ESP_LOGI (TAG, "Media overlay active: dashboard UI hidden");
+
 #endif
         if (content_) lv_obj_add_flag(content_, LV_OBJ_FLAG_HIDDEN);
         ESP_LOGI(TAG, "Media overlay active: main UI hidden");
@@ -175,6 +247,13 @@ void LcdDisplay::SetMediaOverlayActive(bool active) {
 #ifdef CONFIG_WEATHER_IDLE_DISPLAY_ENABLE
         if (container_ && lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN)) {
             lv_obj_remove_flag(container_, LV_OBJ_FLAG_HIDDEN);
+            ESP_LOGI(TAG, "Media overlay inactive: weather UI restored");
+        }
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+        if (container_ && lv_obj_has_flag(container_, LV_OBJ_FLAG_HIDDEN)) {
+            lv_obj_remove_flag(container_, LV_OBJ_FLAG_HIDDEN);
+            ESP_LOGI(TAG, "Media overlay inactive: dashboard UI restored");
         }
 #endif
         ESP_LOGI(TAG, "Media overlay inactive: main UI restored");
@@ -198,6 +277,12 @@ LcdDisplay::LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_
 
 #ifdef CONFIG_WEATHER_IDLE_DISPLAY_ENABLE
     weather_ui_ = std::make_unique<WeatherUI>();
+    ESP_LOGI (TAG, "WeatherUI initialized");
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    dashboard_ui_ = std::make_unique<DashboardUI>();
+    control_ui_ = std::make_unique<ControlUI>();
+    ESP_LOGI (TAG, "DashboardUI and ControlUI initialized");
 #endif
 
     // Create a timer to hide the preview image
@@ -603,7 +688,14 @@ void LcdDisplay::SetupUI() {
         weather_ui_->SetupIdleUI(screen, width_, height_);
     }
 #endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    if (dashboard_ui_) {
+        dashboard_ui_->SetupIdleUI(screen, width_, height_);
+    }
+    if (control_ui_) {
+        control_ui_->SetupUI(screen, width_, height_);
 }
+#endif
 #if CONFIG_IDF_TARGET_ESP32P4
 #define  MAX_MESSAGES 40
 #else
@@ -1016,6 +1108,24 @@ void LcdDisplay::SetupUI() {
 #ifdef CONFIG_WEATHER_IDLE_DISPLAY_ENABLE
     if (weather_ui_) {
         weather_ui_->SetupIdleUI(screen, width_, height_);
+        ESP_LOGI (TAG, "Weather UI setup completed");
+    }
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE  
+    if (dashboard_ui_) {
+        dashboard_ui_->SetupIdleUI(screen, width_, height_);
+        
+        ESP_LOGI  (TAG, "Dashboard UI setup completed");
+    }
+    else {
+        ESP_LOGW(TAG, "Dashboard UI is not initialized");
+    }
+    if (control_ui_) {
+        control_ui_->SetupUI(screen, width_, height_);
+        ESP_LOGI(TAG, "Control UI setup completed");
+    }
+    else {
+        ESP_LOGW(TAG, "Control UI is not initialized");
     }
 #endif
 }

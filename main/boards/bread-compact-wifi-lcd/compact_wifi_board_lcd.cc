@@ -276,6 +276,24 @@ private:
         switch (gesture) {
             case TOUCH_GESTURE_SWIPE_RIGHT:
             {
+                auto& app = Application::GetInstance();
+                if (app.GetDeviceState() == kDeviceStateIdle) {
+                    auto& board = Board::GetInstance();
+                    auto display = board.GetDisplay();
+
+                    display->HideControl();
+
+                    DashboardInfo info{};
+                    info.temperature = 28.5f;
+                    info.humidity = 72.0f;
+                    info.relay = true;
+
+                    display->ShowIdleCard(info);
+
+                    break;
+                }
+                // Chỉ cho phép khi Xiaozhi đang Idle
+                
                 music::SourceType source = Application::GetInstance().BuildMusicInfo().source;
                 ESP_LOGI(TAG, "Current source detected: %d", static_cast<int>(source));
                 if (source == music::SourceType::SD_CARD) {
@@ -288,23 +306,37 @@ private:
                     vTaskDelay(pdMS_TO_TICKS(500));
                 }
                 } else {
-                auto& board = Board::GetInstance();
-                auto backlight = board.GetBacklight();
-                int new_brightness = backlight->brightness();
+                // auto& board = Board::GetInstance();
+                // auto backlight = board.GetBacklight();
+                // int new_brightness = backlight->brightness();
                 
-                // Swipe right - increase brightness
-                new_brightness += 5;
-                if (new_brightness > 100) new_brightness = 100;
-                ESP_LOGI(TAG, "Brightness: %d → %d", backlight->brightness(), new_brightness);
+                // // Swipe right - increase brightness
+                // new_brightness += 5;
+                // if (new_brightness > 100) new_brightness = 100;
+                // ESP_LOGI(TAG, "Brightness: %d → %d", backlight->brightness(), new_brightness);
                 
-                backlight->SetBrightness(new_brightness);
-                auto display = board.GetDisplay();
-                display->ShowNotification("Brightness: " + std::to_string(new_brightness));
-                }
+                // backlight->SetBrightness(new_brightness);
+                // auto display = board.GetDisplay();
+                // display->ShowNotification("Brightness: " + std::to_string(new_brightness));
+                 }
             }
             break;
             case TOUCH_GESTURE_SWIPE_LEFT:
             {
+                 
+                auto& app = Application::GetInstance();
+
+                // Chỉ cho phép khi Xiaozhi đang Idle
+                if (app.GetDeviceState() == kDeviceStateIdle) {
+                    auto& board = Board::GetInstance();
+                    auto display = board.GetDisplay();
+
+                    display->HideIdleCard();
+                    display->ShowControl();
+
+                    break;
+                }
+                
                 music::SourceType source = Application::GetInstance().BuildMusicInfo().source;
                 ESP_LOGI(TAG, "Current source detected: %d", static_cast<int>(source));
                 if (source == music::SourceType::SD_CARD) {
@@ -322,14 +354,14 @@ private:
                 auto backlight = board.GetBacklight();
                 int new_brightness = backlight->brightness();
                 
-                // Swipe left - decrease brightness
-                new_brightness -= 5;
-                if (new_brightness <= 0) new_brightness = 0;  // Min 5% to keep visible
-                ESP_LOGI(TAG, "Brightness: %d → %d", backlight->brightness(), new_brightness);
+            //     // Swipe left - decrease brightness
+            //     new_brightness -= 5;
+            //     if (new_brightness <= 0) new_brightness = 0;  // Min 5% to keep visible
+            //     ESP_LOGI(TAG, "Brightness: %d → %d", backlight->brightness(), new_brightness);
                 
-                backlight->SetBrightness(new_brightness);
-                auto display = board.GetDisplay();
-                display->ShowNotification("Brightness: " + std::to_string(new_brightness));
+            //     backlight->SetBrightness(new_brightness);
+            //     auto display = board.GetDisplay();
+            //     display->ShowNotification("Brightness: " + std::to_string(new_brightness));
             }
             break;
             case TOUCH_GESTURE_SWIPE_DOWN:

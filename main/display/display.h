@@ -18,7 +18,8 @@
 // Forward declarations for weather structures
 struct IdleCardInfo;
 struct WeatherInfo;
-
+struct DashboardInfo;
+struct ControlInfo;
 class Theme {
 public:
     Theme(const std::string& name) : name_(name) {}
@@ -63,6 +64,14 @@ public:
     // For weather idle card
     virtual void ShowIdleCard(const IdleCardInfo& info) {}
     virtual void HideIdleCard() {}
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    // For dashboard idle card
+    virtual void ShowIdleCard(const DashboardInfo& info) {}
+    virtual void HideIdleCard() {}
+    // For control UI
+    virtual void ShowControl() {}
+    virtual void HideControl() {}
 #endif
 
     inline int width() const { return width_; }

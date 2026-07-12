@@ -284,13 +284,13 @@ void WeatherUI::SetupIdleUI(lv_obj_t* parent, int screen_width, int screen_heigh
 
     // --- 4. NGÀY THÁNG ---
     label_full_date_ = lv_label_create(container_);
-    lv_obj_set_style_text_font(label_full_date_, &font_puhui_20_4, 0);
+    lv_obj_set_style_text_font(label_full_date_, &lv_font_montserrat_20, 0);
     lv_obj_set_style_text_color(label_full_date_, COLOR_GRAY, 0);
     lv_label_set_text(label_full_date_, "--, --/--/----");
 
     // --- 5. VỊ TRÍ ---
     label_location_ = lv_label_create(container_);
-    lv_obj_set_style_text_font(label_location_, &font_puhui_20_4, 0);
+    lv_obj_set_style_text_font(label_location_, &lv_font_montserrat_20, 0);
     lv_obj_set_style_text_color(label_location_, COLOR_WHITE, 0);
     lv_label_set_text(label_location_, "\xef\x81\x81 Đang cập nhật..."); 
 

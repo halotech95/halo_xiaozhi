@@ -585,6 +585,11 @@ config WEATHER_IDLE_DISPLAY_ENABLE
     default n
     help
         Enable Weather Feature support
+config DASHBOARD_UI_ENABLE
+    bool "Enable Dashboard Feature (Idle Display for LCD)"
+    default n
+    help
+        Enable Dashboard Feature support
 
 config MIC_HIGH_PASS_FILTER_ENABLE
     bool "Enable High Pass Filter for Audio Input"

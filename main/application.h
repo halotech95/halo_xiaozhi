@@ -30,7 +30,9 @@ namespace spectrum { class SpectrumManager; }
 #include "features/weather/weather_service.h"
 #include "features/weather/weather_model.h"
 // ---------------------
-
+// --- Display Dashboard ---
+#include "features/dashboard/dashboard_model.h" 
+#include "features/control/control_model.h"
 #define MAIN_EVENT_SCHEDULE (1 << 0)
 #define MAIN_EVENT_SEND_AUDIO (1 << 1)
 #define MAIN_EVENT_WAKE_WORD_DETECTED (1 << 2)
@@ -217,7 +219,9 @@ private:
 #ifdef CONFIG_WEATHER_IDLE_DISPLAY_ENABLE
     TaskHandle_t weather_idle_task_handle_ = nullptr;
 #endif
-
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    TaskHandle_t dashboard_task_handle_ = nullptr;
+#endif
     /**
      * @brief Identifies which media component to exclude from stopping.
      * Used by StopOtherMedia() to skip the component about to play.
@@ -252,6 +256,11 @@ private:
     void StartWeatherIdleTask();
     void UpdateIdleDisplay();
     // -------------------
+#endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+void StartDashboardTask();
+void UpdateDashboardDisplay();
+//TaskHandle_t dashboard_task_handle_ = nullptr;
 #endif
 };
 

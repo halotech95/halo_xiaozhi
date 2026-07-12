@@ -4,7 +4,8 @@
 #include "lvgl_display.h"
 #include "gif/lvgl_gif.h"
 #include "features/weather/weather_ui.h"
-
+#include "features/dashboard/dashboard_ui.h"
+#include "features/control/control_ui.h"
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
 #include <font_emoji.h>
@@ -48,7 +49,9 @@ protected:
 
     // Weather UI component
     std::unique_ptr<WeatherUI> weather_ui_;
-
+    // Dashboard UI component
+    std::unique_ptr<DashboardUI> dashboard_ui_;
+    std::unique_ptr<ControlUI> control_ui_;
     void InitializeLcdThemes();
     void SetupUI();
     virtual bool Lock(int timeout_ms = 0) override;
@@ -87,7 +90,15 @@ public:
     virtual void ShowIdleCard(const IdleCardInfo& info) override;
     virtual void HideIdleCard() override;
 #endif
+#ifdef CONFIG_DASHBOARD_UI_ENABLE
+    virtual void ShowIdleCard(const DashboardInfo& info) override;
+    virtual void HideIdleCard() override;
+
+    virtual void ShowControl();
+    virtual void HideControl();
+#endif
 };
+
 
 // SPI LCD Display
 class SpiLcdDisplay : public LcdDisplay {
