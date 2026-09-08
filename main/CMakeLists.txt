@@ -19,6 +19,8 @@ set(SOURCES "audio/audio_codec.cc"
             "features/music/music_visualizer.cc"
             "features/QRCode/qrcode_display.cc"
             "features/video/video_player.cc"
+            "features/mp4/mp4_player.cc"
+            "features/mp4/extractor_helper.c"
             "audio/processors/audio_debugger.cc"
             "led/single_led.cc"
             "led/circular_strip.cc"
@@ -54,7 +56,7 @@ set(SOURCES "audio/audio_codec.cc"
             "main.cc"
             )
 
-set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "audio" "protocols" "features/music" "features/video" "features/weather" "features/spectrum" "features/QRCode")
+set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "audio" "protocols" "features/music" "features/video" "features/mp4" "features/weather" "features/spectrum" "features/QRCode")
 
 # Add board common files
 file(GLOB BOARD_COMMON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/boards/common/*.cc)
